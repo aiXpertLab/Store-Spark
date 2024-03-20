@@ -14,9 +14,7 @@ load_dotenv()
 @cl.on_chat_start
 def setup_multiple_chains():
     llm = OpenAI(model='gpt-3.5-turbo-instruct', temperature=0)
-    conversation_memory = ConversationBufferMemory(memory_key="chat_history",
-                                                   max_len=200,
-                                                   return_messages=True,)
+    conversation_memory = ConversationBufferMemory(memory_key="chat_history",max_len=200,return_messages=True,)
     llm_chain = LLMChain(llm=llm, prompt=ice_cream_assistant_prompt, memory=conversation_memory)
     cl.user_session.set("llm_chain", llm_chain)
 

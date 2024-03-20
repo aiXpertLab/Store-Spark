@@ -1,5 +1,5 @@
 import streamlit as st
-import asyncio, inspect
+import asyncio
 
 from langchain_openai import OpenAI
 from langchain.chains import LLMChain, APIChain
@@ -44,6 +44,9 @@ async def main():
 
     st.title("💬 Chatbot")
     st.caption("🚀 A streamlit chatbot powered by OpenAI LLM")
+    
+    chat_history = []
+    chat_container = st.container()  # Create a scrollable container
 
     llm_chain = await create_llm_chain(llm_model, temperature)
     api_chain = await create_api_chain(llm_chain.llm, scoopsie_api_docs)
@@ -52,16 +55,32 @@ async def main():
     st.session_state["api_chain"] = api_chain
 
     # Create a text input for user messages:
-    user_message = st.text_input("Ask me anything about ice cream!")
+    # user_message = st.chat_input("Ask me anything about ice cream!")
+    user_message = st.chat_input("Ask me anything about ice cream!", key="user_message") or ""
 
+    # Clear container content (optional, for fresh conversation on refresh)
+    # chat_container.empty()
+
+    # Append user message to chat history
+    chat_history.append({"role": "user", "content": user_message})
+    
     if any(keyword in user_message.lower() for keyword in ["menu", "customization", "offer", "review"]):
         response = await api_chain.ainvoke(user_message)
         response_key = "output" if "output" in response else "text"
     else:
         response = await llm_chain.ainvoke(user_message)
         response_key = "output" if "output" in response else "text"
+    
+    chat_history.append({"role": "assistant", "content": response.get(response_key, "")})
 
-    st.write(response.get(response_key, ""))
+    with chat_container:
+            for msg in chat_history:
+                st.chat_message(msg["role"]).write(msg["content"])    
+                
+    # for msg in chat_history:
+    #     st.chat_message(msg["role"]).write(msg["content"])
+
+    # st.write(response.get(response_key, ""))
 
 if __name__ == "__main__":
     asyncio.run(main())
