@@ -1,0 +1,4 @@
+openai
+Requests
+streamlit
+tenacity
