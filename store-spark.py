@@ -1,11 +1,11 @@
 import requests
 import streamlit as st
 from streamlit_pills import pills
+from streamlit_extras.app_logo import add_logo
 from tenacity import retry, wait_random_exponential, stop_after_attempt
 
 from openai import OpenAI
 GPT_MODEL = "gpt-3.5-turbo-0125"
-client = OpenAI()
 
 @retry(wait=wait_random_exponential(multiplier=1, max=40), stop=stop_after_attempt(3))
 def chat_completion_request(messages, tools=None, tool_choice=None, model=GPT_MODEL):
@@ -34,6 +34,8 @@ def get_products():
 
 st.title("👋 How can I help you today? 💬")
 st.caption("🚀 Bridge the Gap: Chatbots for Every Store 🍨")
+# st.sidebar.title("Store Spark")
+st.sidebar.image("sslogo.png", use_column_width=True)
 
 with st.sidebar:
     store_link = st.text_input("Enter Your Store URL:",   value="http://hypech.com/StoreSpark", disabled=True, key="store_link")
@@ -56,21 +58,28 @@ for message in st.session_state.messages[2:]:
 
 # React to user input
 if prompt := st.chat_input("Looking for tees, drinkware, headgear, bag, accessories, or office supplies?🍦Ask me!"):
-    # Add user message to chat history
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    # Display user message in chat message container
-    with st.chat_message("user"):
-        st.markdown(prompt)
+    if not openai_api_key:
+        st.info("Please add your OpenAI API key to continue.")
+    else: 
+        try:
+            client = OpenAI(api_key = openai_api_key)
+            # Add user message to chat history
+            st.session_state.messages.append({"role": "user", "content": prompt})
+            # Display user message in chat message container
+            with st.chat_message("user"):
+                st.markdown(prompt)
 
-    # Display assistant response in chat message container
-    with st.chat_message("assistant"):
-        stream = client.chat.completions.create(
-            model = st.session_state["openai_model"],
-            messages = [
-                {"role": m["role"], "content": m["content"]}
-                for m in st.session_state.messages
-            ],
-            stream = True,)
-        response = st.write_stream(stream)
-    # Add assistant response to chat history
-    st.session_state.messages.append({"role": "assistant", "content": response})
+            # Display assistant response in chat message container
+            with st.chat_message("assistant"):
+                stream = client.chat.completions.create(
+                    model = st.session_state["openai_model"],
+                    messages = [
+                        {"role": m["role"], "content": m["content"]}
+                        for m in st.session_state.messages
+                    ],
+                    stream = True,)
+                response = st.write_stream(stream)
+            # Add assistant response to chat history
+            st.session_state.messages.append({"role": "assistant", "content": response})
+        except:
+            st.info("Invalid OpenAI API key. Please enter a valid key to proceed.")
