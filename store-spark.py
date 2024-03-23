@@ -1,7 +1,5 @@
 import requests
 import streamlit as st
-from streamlit_pills import pills
-from streamlit_extras.app_logo import add_logo
 from tenacity import retry, wait_random_exponential, stop_after_attempt
 
 from openai import OpenAI
@@ -23,8 +21,8 @@ def chat_completion_request(messages, tools=None, tool_choice=None, model=GPT_MO
         return e
 
 def get_products():
-    url = "https://hypech.com/StoreSpark/product_short.json" 
-    # url = "https://hypech.com/StoreSpark/products.json"    
+    # url = "https://hypech.com/StoreSpark/product_short.json" 
+    url = "https://hypech.com/StoreSpark/products.json"    
     response = requests.get(url)     
     if response.status_code == 200:  
         data = response.text                  
