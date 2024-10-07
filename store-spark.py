@@ -3,7 +3,7 @@ import streamlit as st
 from tenacity import retry, wait_random_exponential, stop_after_attempt
 
 from openai import OpenAI
-GPT_MODEL = "gpt-3.5-turbo-0125"
+GPT_MODEL = "GPT-4o"
 
 @retry(wait=wait_random_exponential(multiplier=1, max=40), stop=stop_after_attempt(3))
 def chat_completion_request(messages, tools=None, tool_choice=None, model=GPT_MODEL):
@@ -36,7 +36,7 @@ st.caption("🚀 Bridge the Gap: Chatbots for Every Store 🍨")
 st.sidebar.image("sslogo.png", use_column_width=True)
 
 with st.sidebar:
-    store_link = st.text_input("Enter Your Store URL:",   value="http://hypech.com/StoreSpark", disabled=True, key="store_link")
+    store_link = st.text_input("Enter Your Store URL:",   value="https://storespark.netlify.app/", disabled=True, key="store_link")
     openai_api_key = st.text_input("OpenAI API Key", key="chatbot_api_key", type="password")
     "[Get an OpenAI API key](https://platform.openai.com/account/api-keys)"
 
